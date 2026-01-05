@@ -4,10 +4,6 @@ from app.models.position_report import PositionReport
 from app.models.vessel import Vessel
 import math
 
-TIME_THRESHOLD_SEC = 120
-DISTANCE_THRESHOLD_M = 200
-MIN_REPORTS = 3 
-
 def load_reports(db: Session):
     return (
         db.query(PositionReport)
@@ -43,7 +39,7 @@ def infer_tug_jobs(
     reports = load_reports(db)
     grouped = group_by_entity(reports)
     vessels_metadata = {int(v.mmsi): v.name for v in db.query(Vessel).all()}
-    
+
     vessels = {k: v for k, v in grouped.items() if k[0] != "tug"}
     tugs = {k: v for k, v in grouped.items() if k[0] == "tug"}
 
@@ -56,12 +52,12 @@ def infer_tug_jobs(
             for vr in vessel_reports:
                 for tr in tug_reports:
                     time_diff = abs((vr.timestamp - tr.timestamp).total_seconds())
-                    if time_diff <= TIME_THRESHOLD_SEC:
+                    if time_diff <= time_threshold_sec:
                         d = haversine_m(vr.latitude, vr.longitude, tr.latitude, tr.longitude)
-                        if d <= DISTANCE_THRESHOLD_M:
+                        if d <= distance_threshold_m:
                             close_timestamps.append(vr.timestamp)
 
-            if len(close_timestamps) >= MIN_REPORTS:
+            if len(close_timestamps) >= min_reports:
                 inferred_jobs.append({
                     "vessel_mmsi": vessel_id,
                     "vessel_name": vessels_metadata.get(int(vessel_id)),
