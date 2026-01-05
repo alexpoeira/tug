@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api import position_reports
+from app.db.init_db import init_db
 
 app = FastAPI(title="Tug Job Inference API")
 
