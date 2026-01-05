@@ -39,8 +39,18 @@ def reset_database(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Error resetting database: {str(e)}")
 
 @router.get("/tug-jobs")
-def get_inferred_tug_jobs(db: Session = Depends(get_db)):
-    jobs = infer_tug_jobs(db)
+def get_inferred_tug_jobs(
+    db: Session = Depends(get_db),
+    time_threshold_sec: int = Query(120, description="Time threshold in seconds"),
+    distance_threshold_m: int = Query(500, description="Distance threshold in meters"),
+    min_reports: int = Query(3, description="Minimum number of reports to infer a job")
+):
+    jobs = infer_tug_jobs(
+        db,
+        time_threshold_sec=time_threshold_sec,
+        distance_threshold_m=distance_threshold_m,
+        min_reports=min_reports
+    )
     return jobs
 
 @router.get("/vessels", response_model=list[VesselRead])

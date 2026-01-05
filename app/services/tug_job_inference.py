@@ -34,11 +34,16 @@ def haversine_m(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
 
-def infer_tug_jobs(db: Session):
+def infer_tug_jobs(
+    db: Session,
+    time_threshold_sec: int = 120,
+    distance_threshold_m: int = 500,
+    min_reports: int = 3,
+):
     reports = load_reports(db)
     grouped = group_by_entity(reports)
     vessels_metadata = {int(v.mmsi): v.name for v in db.query(Vessel).all()}
-    print(vessels_metadata)
+    
     vessels = {k: v for k, v in grouped.items() if k[0] != "tug"}
     tugs = {k: v for k, v in grouped.items() if k[0] == "tug"}
 

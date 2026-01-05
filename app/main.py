@@ -8,3 +8,7 @@ app.include_router(position_reports.router)
 @app.get("/")
 def root():
     return {"status": "running"}
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
