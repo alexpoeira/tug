@@ -7,10 +7,8 @@ class PositionReport(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     entity_type = Column(String, nullable=False)
-    # "vessel" or "tugboat"
 
     entity_id = Column(Integer, nullable=False)
-    # imo if vessel, mmsi if tugboat
 
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)

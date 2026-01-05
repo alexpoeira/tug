@@ -25,9 +25,7 @@ router = APIRouter(prefix="/position-reports", tags=["Position Reports"])
 @router.delete("/reset")
 def reset_database(db: Session = Depends(get_db)):
     try:
-        # Delete all position reports
         deleted_reports = db.query(PositionReport).delete()
-        # Delete all vessels
         deleted_vessels = db.query(Vessel).delete()
 
         db.commit()
@@ -42,29 +40,20 @@ def reset_database(db: Session = Depends(get_db)):
 
 @router.get("/tug-jobs")
 def get_inferred_tug_jobs(db: Session = Depends(get_db)):
-    """
-    Returns inferred tug jobs based on position reports.
-    """
     jobs = infer_tug_jobs(db)
     return jobs
 
 @router.get("/vessels", response_model=list[VesselRead])
 def get_all_vessels(db: Session = Depends(get_db)):
-    """
-    Returns all vessels in the database.
-    """
     vessels = db.query(Vessel).all()
     return vessels
 
 @router.get("/attributes")
 def get_unique_attributes(db: Session = Depends(get_db)):
-    # Unique entity types (from vessels table)
     entity_types = {v.type for v in db.query(Vessel).all()}
 
-    # Unique navigation statuses
     nav_statuses = {r.navigation_status for r in db.query(PositionReport).all()}
 
-    # Unique subtypes
     subtypes = {v.subtype for v in db.query(Vessel).all() if v.subtype}
 
     return {
@@ -77,7 +66,6 @@ def get_unique_attributes(db: Session = Depends(get_db)):
 def ingest_position_report(payload: PositionReportCreate, db: Session = Depends(get_db)):
     mmsi = str(payload.device.mmsi)
 
-    # Upsert vessel metadata
     v = upsert_vessel(
         db=db,
         mmsi=mmsi,
@@ -91,7 +79,7 @@ def ingest_position_report(payload: PositionReportCreate, db: Session = Depends(
     nav = payload.navigation
     return create_position_report(
         db=db,
-        entity_type=payload.vessel.type,  # exactly what you said
+        entity_type=payload.vessel.type,
         entity_id=mmsi,
         latitude=nav.location.lat,
         longitude=nav.location.long,
@@ -125,7 +113,6 @@ def ingest_batch(payload: PositionReportBatch, db: Session = Depends(get_db)):
     for record in payload.data:
         mmsi = str(record.device.mmsi)
 
-        # Upsert vessel metadata
         v = upsert_vessel(
             db=db,
             mmsi=mmsi,
@@ -141,7 +128,7 @@ def ingest_batch(payload: PositionReportBatch, db: Session = Depends(get_db)):
 
         create_position_report(
             db=db,
-            entity_type=record.vessel.type,  # use vessel type
+            entity_type=record.vessel.type,
             entity_id=mmsi,
             latitude=nav.location.lat,
             longitude=nav.location.long,

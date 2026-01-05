@@ -13,7 +13,6 @@ def upsert_vessel(
     vessel = db.query(Vessel).filter(Vessel.mmsi == mmsi).first()
 
     if vessel:
-        # always update fields since IMO is guaranteed
         vessel.imo = imo
         vessel.name = name
         vessel.type = type_

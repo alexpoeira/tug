@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, DateTime, ForeignKey, Table
 from app.db.database import Base
 
-# Association table for many-to-many
 tug_job_tugboats = Table(
     "tug_job_tugboats",
     Base.metadata,

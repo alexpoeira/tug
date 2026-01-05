@@ -5,7 +5,7 @@ from app.models.vessel import Vessel
 import math
 
 TIME_THRESHOLD_SEC = 120
-DISTANCE_THRESHOLD_M = 200 # meters
+DISTANCE_THRESHOLD_M = 200
 MIN_REPORTS = 3 
 
 def load_reports(db: Session):
@@ -25,11 +25,7 @@ def group_by_entity(reports):
     return grouped
 
 def haversine_m(lat1, lon1, lat2, lon2):
-    """
-    Calculate the great-circle distance between two points
-    on the Earth (specified in decimal degrees), returns meters.
-    """
-    R = 6371000  # radius of Earth in meters
+    R = 6371000
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
@@ -43,8 +39,8 @@ def infer_tug_jobs(db: Session):
     grouped = group_by_entity(reports)
     vessels_metadata = {int(v.mmsi): v.name for v in db.query(Vessel).all()}
     print(vessels_metadata)
-    vessels = {k: v for k, v in grouped.items() if k[0] != "tug"}  # all non-tug vessels
-    tugs = {k: v for k, v in grouped.items() if k[0] == "tug"}     # tugs
+    vessels = {k: v for k, v in grouped.items() if k[0] != "tug"}
+    tugs = {k: v for k, v in grouped.items() if k[0] == "tug"}
 
     inferred_jobs = []
 
